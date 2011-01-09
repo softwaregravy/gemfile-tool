@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+
+require 'pathname'
+
+# pull the gems from gem command and format
+temp_dotgems = Pathname.new(__FILE__).realpath.dirname.join("tempfile").to_s
+#TODO currently breaks if there are multiple versions of the same gem
+puts "running"
+system "gem list | awk '{sub(/\\(/, \"--version \" )}; 1' | awk '{sub(/\\)/,\"\")}; 1' > #{temp_dotgems}"
+
+begin
+  path_to_script = Pathname.new(__FILE__).realpath.dirname.join("gemfile-from-dotgems").to_s
+  puts "#{path_to_script} < #{temp_dotgems} > Gemfile"
+  system "#{path_to_script} < #{temp_dotgems} > Gemfile"
+  system "bundle install"
+  system "rm #{temp_dotgems}"
+rescue DotGemsParser::ParseError => e
+  $stderr.puts e
+  exit 1
+end
+
+

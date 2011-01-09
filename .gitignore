@@ -1,0 +1,5 @@
+*.swp
+**/.gems 
+Gemfile 
+Gemfile.lock
+tempfile
