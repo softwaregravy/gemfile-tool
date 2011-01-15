@@ -7,7 +7,11 @@ require 'pathname'
 temp_dotgems = Pathname.new(__FILE__).realpath.dirname.join("tempfile").to_s
 #TODO currently breaks if there are multiple versions of the same gem
 puts "running"
-system "gem list | awk '{sub(/\\(/, \"--version \" )}; 1' | awk '{sub(/\\)/,\"\")}; 1' > #{temp_dotgems}"
+# gem list -- get the gems to list, one per line, GEMNAME (X.Y.Z, X.Y.Z)
+# awk '{sub(/\\(/, \"--version \" )}; 1'  -- sub the opening brace with --version 
+# awk '{sub(/,.*/, \"\)\")}; 1'  -- if we match multiple versions, swallow everything after a ','.  Leave a closing brace for next step
+# awk '{sub(/\\)/,\"\")}; 1'  -- replace the closing ')' with nothing
+system "gem list | awk '{sub(/\\(/, \"--version \" )}; 1' | awk '{sub(/,.*/, \"\)\")}; 1' | awk '{sub(/\\)/,\"\")}; 1' > #{temp_dotgems}"
 
 begin
   path_to_script = Pathname.new(__FILE__).realpath.dirname.join("gemfile-from-dotgems").to_s
